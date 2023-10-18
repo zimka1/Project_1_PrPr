@@ -32,6 +32,55 @@ void checkOpenFile(FILE **Dataloger, int kol_v, int kol_n, int *numberOfRecords,
             printf("\n");
         }
     }
+    else{
+        while (1){
+
+            char s[20];
+            int w;
+            double d;
+            if (fscanf(*Dataloger, "%s", s) != EOF){
+                printf("ID. mer. modulu: %s\n", s);
+                
+                if (fscanf(*Dataloger, "%s", s) != EOF){
+                    printf("poziciaícia modulu: %s\n", s);
+                    
+                    if (fscanf(*Dataloger, "%s", s) != EOF){
+                        printf("poziciaícia modulu: %s\n", s);
+                            
+                        if (fscanf(*Dataloger, "%s", s) != EOF){
+                            printf("Typ mer. veliciny: %s\n", s);
+                            
+                            if (fscanf(*Dataloger, "%lf",&d) != EOF){
+                                printf("hodnotanota: %lf\n", d);
+
+                                if (fscanf(*Dataloger, "%s", s) != EOF){
+                                    printf("Cas merania: %s\n", s);
+
+                                    if (fscanf(*Dataloger, "%d", &w) != EOF){
+                                        printf("Cas merania: %d\n", w);
+                                        
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                }
+            
+            }
+            else if (s[0] == '\n')
+            {
+                continue;
+            }
+            else
+            {
+                break;
+            }
+            printf("\n");
+            
+        }
+        *Dataloger = fopen("dataloger.txt", "r");
+    }   
 }
 
 void freeArrays(char **ID, char **pozicia, char **typ, char **cas, double *hodnota, int *datum, int numberOfRecords)
@@ -239,7 +288,10 @@ int *sortNajdeneArray(int *najdene, char **najdene_datumCas, int k, int *ans_k)
 void sortArray(int numberOfRecords, char *s_id, char *s_typ, char **ID, char **typ, int *datum, char **cas, double *hodnota, char **pozicia)
 {
     FILE *vystup_s = fopen("vystup_S.txt", "w");
-
+    if (vystup_s == NULL){
+        printf("Pre dany vstup nie je vytvoreny txt subor.\n");
+        return;
+    }
     int *najdene = (int *)malloc(numberOfRecords * sizeof(int));
     char **najdene_datumCas = (char **)malloc(numberOfRecords * sizeof(char *));
     char **ALLnajdene_datumCas = (char **)malloc(numberOfRecords * sizeof(char *));
@@ -250,7 +302,7 @@ void sortArray(int numberOfRecords, char *s_id, char *s_typ, char **ID, char **t
 
         if (strcmp(s_id, ID[i]) == 0 && strcmp(s_typ, typ[i]) == 0)
         {
-            printf("Najsel %s\n", ID[i]);
+            // printf("Najsel %s\n", ID[i]);
             najdene[k] = i;
 
             // Выделяем память и копируем строку с датой и временем
@@ -269,10 +321,10 @@ void sortArray(int numberOfRecords, char *s_id, char *s_typ, char **ID, char **t
         strcpy(ALLnajdene_datumCas[i], str);
         strcat(ALLnajdene_datumCas[i], cas[i]);
     }
-    for (int i = 0; i < numberOfRecords; i++)
-    {
-        printf("%d %s\n", najdene[i], najdene_datumCas[i]);
-    }
+    // for (int i = 0; i < numberOfRecords; i++)
+    // {
+    //     printf("%d %s\n", najdene[i], najdene_datumCas[i]);
+    // }
     int ans_k = 0;
     int *ans = sortNajdeneArray(najdene, najdene_datumCas, k, &ans_k);
     char **poz1 = (char **)malloc(numberOfRecords * sizeof(char *));
@@ -312,6 +364,7 @@ void sortArray(int numberOfRecords, char *s_id, char *s_typ, char **ID, char **t
     {
         fprintf(vystup_s, "%s %.5lf %s %s\n", ALLnajdene_datumCas[ans[i]], hodnota[ans[i]], poz1[ans[i]], poz2[ans[i]]);
     }
+    printf("Pre dany vstup je vytvoreny txt subor.\n");
 
     for (int i = 0; i < k; i++)
     {
