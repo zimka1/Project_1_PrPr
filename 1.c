@@ -135,6 +135,7 @@ void createArrays(FILE **Dataloger, int kol_n, int *numberOfRecords, char ***ID,
 void checkMonthes(int y, int *numberOfRecords, char ***ID, int **datum)
 {
     FILE *ciachovanie = fopen("ciachovanie.txt", "r");
+
     while (1)
     {
         char c_ID[6];
@@ -190,16 +191,7 @@ void checkMonthes(int y, int *numberOfRecords, char ***ID, int **datum)
         }
     }
 }
-// int nd = 3;
-// char **najdene_datumCas = NULL;
 
-// int compare(const void *a, const void *b) {
-//     int indexA = *((int *)a);
-//     int indexB = *((int *)b);
-
-//     // Сравниваем элементы на основе строк из strArray
-//     return strcmp(najdene_datumCas[indexA], najdene_datumCas[indexB]);
-// }
 void swap(int *a, int *b)
 {
     int temp = *a;
