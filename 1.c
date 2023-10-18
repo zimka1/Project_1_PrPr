@@ -4,12 +4,13 @@
 #include <string.h>
 #define MAXSIZE 1000
 
-void checkOpenFile(FILE **Dataloger, int kol_v, int kol_n, int *numberOfRecords, char ***ID, char ***pozicia, char ***typ, double **hodnota, char ***cas, int **datum)
+void checkOpenFile(FILE **Dataloger, int *kol_v, int kol_n, int *numberOfRecords, char ***ID, char ***pozicia, char ***typ, double **hodnota, char ***cas, int **datum)
 {
 
-    if (kol_v == 0)
+    if (*kol_v == 0)
     {
         *Dataloger = fopen("dataloger.txt", "r");
+        *kol_v = 1;
     }
 
     if (*Dataloger == NULL)
@@ -101,10 +102,15 @@ void freeArrays(char **ID, char **pozicia, char **typ, char **cas, double *hodno
     free(datum);
 }
 
-void createArrays(FILE **Dataloger, int kol_n, int *numberOfRecords, char ***ID, char ***pozicia, char ***typ, double **hodnota, char ***cas, int **datum)
+void createArrays(FILE **Dataloger, int *kol_n, int *numberOfRecords, char ***ID, char ***pozicia, char ***typ, double **hodnota, char ***cas, int **datum)
 {
 
-    if (kol_n == 1)
+    if (*Dataloger == NULL)
+    {
+        printf("Neotvoreny subor\n");
+        return;
+    }
+    if (*kol_n == 1)
     {
         freeArrays(*ID, *pozicia, *typ, *cas, *hodnota, *datum, *numberOfRecords);
         *Dataloger = fopen("dataloger.txt", "r");
@@ -179,10 +185,23 @@ void createArrays(FILE **Dataloger, int kol_n, int *numberOfRecords, char ***ID,
             break;
         }
     }
+    *kol_n = 1;
 }
 
-void checkMonthes(int y, int *numberOfRecords, char ***ID, int **datum)
+void checkMonthes(int kol_v, int kol_n, int *numberOfRecords, char ***ID, int **datum)
 {
+    if (kol_n == 0)
+    {
+        printf("Polia nie su vytvorene\n");
+        return;
+    }
+    else if (kol_v == 0)
+    {
+        printf("Neotvoreny subor\n");
+        return;
+    }
+    int y;
+    scanf("%d", &y);
     FILE *ciachovanie = fopen("ciachovanie.txt", "r");
 
     while (1)
@@ -285,13 +304,23 @@ int *sortNajdeneArray(int *najdene, char **najdene_datumCas, int k, int *ans_k)
     return ans;
 }
 
-void sortArray(int numberOfRecords, char *s_id, char *s_typ, char **ID, char **typ, int *datum, char **cas, double *hodnota, char **pozicia)
+void sortArray(int numberOfRecords, int kol_n, char **ID, char **typ, int *datum, char **cas, double *hodnota, char **pozicia)
 {
-    FILE *vystup_s = fopen("vystup_S.txt", "w");
+    if (kol_n == 0)
+    {
+        printf("Polia nie su vytvorene\n");
+        return;
+    }
+    FILE *vystup_s = fopen("vystup_S.txt", "w"); 
+
     if (vystup_s == NULL){
         printf("Pre dany vstup nie je vytvoreny txt subor.\n");
         return;
     }
+
+    char s_id[6], s_typ[3];
+    scanf("%s %s", s_id, s_typ);
+
     int *najdene = (int *)malloc(numberOfRecords * sizeof(int));
     char **najdene_datumCas = (char **)malloc(numberOfRecords * sizeof(char *));
     char **ALLnajdene_datumCas = (char **)malloc(numberOfRecords * sizeof(char *));
@@ -386,6 +415,8 @@ void sortArray(int numberOfRecords, char *s_id, char *s_typ, char **ID, char **t
     fclose(vystup_s);
 }
 
+
+
 int main()
 {
 
@@ -407,48 +438,20 @@ int main()
 
         if (command == 'v')
         {
-            checkOpenFile(&Dataloger, kol_v, kol_n, &numberOfRecords, &ID, &pozicia, &typ, &hodnota, &cas, &datum);
-            kol_v = 1;
+            checkOpenFile(&Dataloger, &kol_v, kol_n, &numberOfRecords, &ID, &pozicia, &typ, &hodnota, &cas, &datum);
         }
 
         if (command == 'n')
         {
-            if (Dataloger == NULL)
-            {
-                printf("Neotvoreny subor\n");
-            }
-            else
-            {
-                createArrays(&Dataloger, kol_n, &numberOfRecords, &ID, &pozicia, &typ, &hodnota, &cas, &datum);
-                kol_n = 1;
-            }
+            createArrays(&Dataloger, &kol_n, &numberOfRecords, &ID, &pozicia, &typ, &hodnota, &cas, &datum);
         }
         if (command == 'c')
         {
-            if (kol_n == 0)
-            {
-                printf("Polia nie su vytvorene\n");
-            }
-            else if (Dataloger == NULL)
-            {
-                printf("Neotvoreny subor\n");
-            }
-            else
-            {
-                int y;
-                scanf("%d", &y);
-                checkMonthes(y, &numberOfRecords, &ID, &datum);
-            }
+            checkMonthes(kol_v, kol_n, &numberOfRecords, &ID, &datum);
         }
         if (command == 's')
         {
-            if (kol_n == 0)
-            {
-                printf("Polia nie su vytvorene\n");
-            }
-            char s_id[6], s_typ[3];
-            scanf("%s %s", s_id, s_typ);
-            sortArray(numberOfRecords, s_id, s_typ, ID, typ, datum, cas, hodnota, pozicia);
+            sortArray(numberOfRecords, kol_n, ID, typ, datum, cas, hodnota, pozicia);
         }
     }
 }
