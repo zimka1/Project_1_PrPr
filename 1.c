@@ -190,6 +190,156 @@ void checkMonthes(int y, int *numberOfRecords, char ***ID, int **datum)
         }
     }
 }
+// int nd = 3;
+// char **najdene_datumCas = NULL;
+
+// int compare(const void *a, const void *b) {
+//     int indexA = *((int *)a);
+//     int indexB = *((int *)b);
+
+//     // Сравниваем элементы на основе строк из strArray
+//     return strcmp(najdene_datumCas[indexA], najdene_datumCas[indexB]);
+// }
+void swap(int *a, int *b)
+{
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+int *sortNajdeneArray(int *najdene, char **najdene_datumCas, int k, int *ans_k)
+{
+    int *ans = (int *)malloc(sizeof(int));
+    for (int i = 0; i < k; i++)
+    {
+        int zap = -1;
+        for (int j = 0; j < *ans_k; j++)
+        {
+            if (najdene_datumCas[ans[j]] > najdene_datumCas[najdene[i]])
+            {
+                zap = j;
+            }
+        }
+        if (zap != -1)
+        {
+            int scet = zap;
+            int zap1 = najdene[i];
+            // printf("swap %d %d\n", zap1, ans[scet]);
+            while (scet < *ans_k)
+            {
+                swap(&zap1, &ans[scet]);
+                scet++;
+            }
+            ans = (int *)realloc(ans, (*ans_k + 1) * sizeof(int));
+            (*ans_k)++;
+            ans[*ans_k - 1] = zap1;
+        }
+        else
+        {
+            ans = (int *)realloc(ans, (*ans_k + 1) * sizeof(int));
+            (*ans_k)++;
+            ans[*ans_k - 1] = najdene[i];
+        }
+    }
+    return ans;
+}
+
+void sortArray(int numberOfRecords, char *s_id, char *s_typ, char **ID, char **typ, int *datum, char **cas, double *hodnota, char **pozicia)
+{
+    FILE *vystup_s = fopen("vystup_S.txt", "w");
+
+    int *najdene = (int *)malloc(numberOfRecords * sizeof(int));
+    char **najdene_datumCas = (char **)malloc(numberOfRecords * sizeof(char *));
+    char **ALLnajdene_datumCas = (char **)malloc(numberOfRecords * sizeof(char *));
+    int k = 0;
+
+    for (int i = 0; i < numberOfRecords; i++)
+    {
+
+        if (strcmp(s_id, ID[i]) == 0 && strcmp(s_typ, typ[i]) == 0)
+        {
+            printf("Najsel %s\n", ID[i]);
+            najdene[k] = i;
+
+            // Выделяем память и копируем строку с датой и временем
+            char str[9];
+            sprintf(str, "%d", datum[i]);
+            najdene_datumCas[k] = (char *)malloc(strlen(str) + strlen(cas[i]) + 1);
+
+            strcpy(najdene_datumCas[k], str);
+            strcat(najdene_datumCas[k], cas[i]);
+
+            k++;
+        }
+        char str[9];
+        sprintf(str, "%d", datum[i]);
+        ALLnajdene_datumCas[i] = (char *)malloc(strlen(str) + strlen(cas[i]) + 1);
+        strcpy(ALLnajdene_datumCas[i], str);
+        strcat(ALLnajdene_datumCas[i], cas[i]);
+    }
+    for (int i = 0; i < numberOfRecords; i++)
+    {
+        printf("%d %s\n", najdene[i], najdene_datumCas[i]);
+    }
+    int ans_k = 0;
+    int *ans = sortNajdeneArray(najdene, najdene_datumCas, k, &ans_k);
+    char **poz1 = (char **)malloc(numberOfRecords * sizeof(char *));
+    char **poz2 = (char **)malloc(numberOfRecords * sizeof(char *));
+
+    for (int i = 0; i < numberOfRecords; i++)
+    {
+        poz1[i] = (char *)malloc(20);
+        poz2[i] = (char *)malloc(20);
+        int k1 = 0, k2 = 0;
+        for (int j = 0; j < 15; j++)
+        {
+            if (j < 7)
+            {
+                poz1[i][k1] = pozicia[i][j];
+                k1++;
+            }
+            if (k1 == 3)
+            {
+                poz1[i][k1] = '.';
+                k1++;
+            }
+            if (j >= 7)
+            {
+                poz2[i][k2] = pozicia[i][j];
+                k2++;
+            }
+            if (k2 == 3)
+            {
+                poz2[i][k2] = '.';
+                k2++;
+            }
+        }
+    }
+
+    for (int i = 0; i < ans_k; i++)
+    {
+        fprintf(vystup_s, "%s %.5lf %s %s\n", ALLnajdene_datumCas[ans[i]], hodnota[ans[i]], poz1[ans[i]], poz2[ans[i]]);
+    }
+
+    for (int i = 0; i < k; i++)
+    {
+        free(najdene_datumCas[i]);
+    }
+
+    free(najdene_datumCas);
+    free(najdene);
+    free(ALLnajdene_datumCas);
+
+    for (int i = 0; i < numberOfRecords; i++)
+    {
+        free(poz1[i]);
+        free(poz2[i]);
+    }
+    free(poz1);
+    free(poz2);
+
+    fclose(vystup_s);
+}
 
 int main()
 {
@@ -244,6 +394,16 @@ int main()
                 scanf("%d", &y);
                 checkMonthes(y, &numberOfRecords, &ID, &datum);
             }
+        }
+        if (command == 's')
+        {
+            if (kol_n == 0)
+            {
+                printf("Polia nie su vytvorene\n");
+            }
+            char s_id[6], s_typ[3];
+            scanf("%s %s", s_id, s_typ);
+            sortArray(numberOfRecords, s_id, s_typ, ID, typ, datum, cas, hodnota, pozicia);
         }
     }
 }
