@@ -32,35 +32,42 @@ void checkOpenFile(FILE **Dataloger, int *kol_v, int kol_n, int *numberOfRecords
             printf("\n");
         }
     }
-    else{
-        while (1){
+    else
+    {
+        while (1)
+        {
 
             char s[20];
             int w;
             double d;
-            if (fscanf(*Dataloger, "%s", s) != EOF){
+            if (fscanf(*Dataloger, "%s", s) != EOF)
+            {
                 printf("ID. mer. modulu: %s\n", s);
-                
-                if (fscanf(*Dataloger, "%s", s) != EOF){
+
+                if (fscanf(*Dataloger, "%s", s) != EOF)
+                {
                     printf("Poziciaícia modulu: %s\n", s);
-                    
-                    if (fscanf(*Dataloger, "%s", s) != EOF){
+
+                    if (fscanf(*Dataloger, "%s", s) != EOF)
+                    {
                         printf("Typ mer. veliciny: %s\n", s);
-                            
-                        if (fscanf(*Dataloger, "%lf",&d) != EOF){
+
+                        if (fscanf(*Dataloger, "%lf", &d) != EOF)
+                        {
                             printf("hodnotanota: %lf\n", d);
 
-                            if (fscanf(*Dataloger, "%s", s) != EOF){
+                            if (fscanf(*Dataloger, "%s", s) != EOF)
+                            {
                                 printf("Cas merania: %s\n", s);
 
-                                if (fscanf(*Dataloger, "%d", &w) != EOF){
+                                if (fscanf(*Dataloger, "%d", &w) != EOF)
+                                {
                                     printf("Datum merania: %d\n", w);
-                                    
                                 }
                             }
                         }
                     }
-                }       
+                }
             }
             else if (s[0] == '\n')
             {
@@ -71,28 +78,27 @@ void checkOpenFile(FILE **Dataloger, int *kol_v, int kol_n, int *numberOfRecords
                 break;
             }
             printf("\n");
-            
         }
         *Dataloger = fopen("dataloger.txt", "r");
-    }   
+    }
 }
 
-void freedom(char **ID, char **pozicia, char **typ, char **cas, double *hodnota, int *datum, int numberOfRecords)
+void freedom(char ***ID, char ***pozicia, char ***typ, char ***cas, double **hodnota, int **datum, int numberOfRecords)
 {
     for (int i = 0; i < numberOfRecords; i++)
     {
-        free(ID[i]);
-        free(pozicia[i]);
-        free(typ[i]);
-        free(cas[i]);
+        free((*ID)[i]);
+        free((*pozicia)[i]);
+        free((*typ)[i]);
+        free((*cas)[i]);
     }
 
-    free(ID);
-    free(pozicia);
-    free(typ);
-    free(cas);
-    free(hodnota);
-    free(datum);
+    free(*ID);
+    free(*pozicia);
+    free(*typ);
+    free(*cas);
+    free(*hodnota);
+    free(*datum);
 }
 
 void createArrays(FILE **Dataloger, int *kol_n, int *numberOfRecords, char ***ID, char ***pozicia, char ***typ, double **hodnota, char ***cas, int **datum)
@@ -105,10 +111,9 @@ void createArrays(FILE **Dataloger, int *kol_n, int *numberOfRecords, char ***ID
     }
     if (*kol_n == 1)
     {
-        freedom(*ID, *pozicia, *typ, *cas, *hodnota, *datum, *numberOfRecords);
+        freedom(&*ID, &*pozicia, &*typ, &*cas, &*hodnota, &*datum, *numberOfRecords);
         *Dataloger = fopen("dataloger.txt", "r");
         *numberOfRecords = 0;
-        
     }
 
     double d;
@@ -253,7 +258,8 @@ void checkMonthes(int kol_v, int kol_n, int *numberOfRecords, char ***ID, int **
             allDataCorrect = 0;
         }
     }
-    if (allDataCorrect == 1){
+    if (allDataCorrect == 1)
+    {
         printf("Data su korektne.");
     }
 }
@@ -309,9 +315,10 @@ void sortArray(int numberOfRecords, int kol_n, char **ID, char **typ, int *datum
         printf("Polia nie su vytvorene\n");
         return;
     }
-    FILE *vystup_s = fopen("vystup_S.txt", "w"); 
+    FILE *vystup_s = fopen("vystup_S.txt", "w");
 
-    if (vystup_s == NULL){
+    if (vystup_s == NULL)
+    {
         printf("Pre dany vstup nie je vytvoreny txt subor.\n");
         return;
     }
@@ -332,7 +339,6 @@ void sortArray(int numberOfRecords, int kol_n, char **ID, char **typ, int *datum
             // printf("Najsel %s\n", ID[i]);
             najdene[k] = i;
 
-            // Выделяем память и копируем строку с датой и временем
             char str[9];
             sprintf(str, "%d", datum[i]);
             najdene_datumCas[k] = (char *)malloc(strlen(str) + strlen(cas[i]) + 1);
@@ -413,8 +419,8 @@ void sortArray(int numberOfRecords, int kol_n, char **ID, char **typ, int *datum
     fclose(vystup_s);
 }
 
-
-void minMax(int numberOfRecords, int kol_n, char **typ, double *hodnota){
+void minMax(int numberOfRecords, int kol_n, char **typ, double *hodnota)
+{
     if (kol_n == 0)
     {
         printf("Polia nie su vytvorene\n");
@@ -425,15 +431,19 @@ void minMax(int numberOfRecords, int kol_n, char **typ, double *hodnota){
     char **numberOfTyps = (char **)malloc(numberOfRecords * sizeof(char *));
     int *countOfTyps = (int *)malloc(numberOfRecords * sizeof(int));
     int k_num = 0;
-    for (int i = 0; i < numberOfRecords; i++){
+    for (int i = 0; i < numberOfRecords; i++)
+    {
         int act_number = -1;
-        for (int j = 0; j < k_num; j++){
-            if (strcmp(numberOfTyps[j], typ[i]) == 0){
+        for (int j = 0; j < k_num; j++)
+        {
+            if (strcmp(numberOfTyps[j], typ[i]) == 0)
+            {
                 act_number = j;
                 break;
             }
         }
-        if (act_number == -1){
+        if (act_number == -1)
+        {
             k_num += 1;
             numberOfTyps[k_num - 1] = typ[i];
             act_number = k_num - 1;
@@ -441,32 +451,37 @@ void minMax(int numberOfRecords, int kol_n, char **typ, double *hodnota){
             max[act_number] = hodnota[i];
             countOfTyps[act_number] = 1;
         }
-        else{
+        else
+        {
             countOfTyps[act_number]++;
-            if (min[act_number] > hodnota[i]){
+            if (min[act_number] > hodnota[i])
+            {
                 min[act_number] = hodnota[i];
             }
-            if (max[act_number] < hodnota[i]){
+            if (max[act_number] < hodnota[i])
+            {
                 max[act_number] = hodnota[i];
             }
         }
-            
     }
-    for (int i = 0; i < k_num; i++){
+    for (int i = 0; i < k_num; i++)
+    {
         printf("%s %d %.2lf %.2lf\n", numberOfTyps[i], countOfTyps[i], min[i], max[i]);
     }
 }
 
-void delete(int kol_n, int *numberOfRecords, char ***ID, char ***pozicia, char ***typ, double **hodnota, char ***cas, int **datum) {
-    
-    if (kol_n == 0) {
+void delete(int kol_n, int *numberOfRecords, char ***ID, char ***pozicia, char ***typ, double **hodnota, char ***cas, int **datum)
+{
+
+    if (kol_n == 0)
+    {
         printf("Polia nie su vytvorene\n");
         return;
     }
-    
+
     char z_ID[6];
     scanf("%s", z_ID);
-    
+
     int newNumberOfRecords = 0;
     char **newID = (char **)malloc(*numberOfRecords * sizeof(char *));
     char **newPozicia = (char **)malloc(*numberOfRecords * sizeof(char *));
@@ -474,9 +489,12 @@ void delete(int kol_n, int *numberOfRecords, char ***ID, char ***pozicia, char *
     double *newHodnota = (double *)malloc(*numberOfRecords * sizeof(double));
     char **newCas = (char **)malloc(*numberOfRecords * sizeof(char *));
     int *newDatum = (int *)malloc(*numberOfRecords * sizeof(int));
-    
-    for (int i = 0; i < *numberOfRecords; i++) {
-        if (strcmp((*ID)[i], z_ID) != 0) {
+
+    int vym_k = 0;
+    for (int i = 0; i < *numberOfRecords; i++)
+    {
+        if (strcmp((*ID)[i], z_ID) != 0)
+        {
             newID[newNumberOfRecords] = strdup((*ID)[i]);
             newPozicia[newNumberOfRecords] = strdup((*pozicia)[i]);
             newTyp[newNumberOfRecords] = strdup((*typ)[i]);
@@ -485,10 +503,12 @@ void delete(int kol_n, int *numberOfRecords, char ***ID, char ***pozicia, char *
             newDatum[newNumberOfRecords] = (*datum)[i];
             newNumberOfRecords++;
         }
+        else{
+            vym_k++;
+        }
     }
 
-    
-    freedom(*ID, *pozicia, *typ, *cas, *hodnota, *datum, *numberOfRecords);
+    freedom(&*ID, &*pozicia, &*typ, &*cas, &*hodnota, &*datum, *numberOfRecords);
 
     *numberOfRecords = newNumberOfRecords;
     *ID = newID;
@@ -497,24 +517,32 @@ void delete(int kol_n, int *numberOfRecords, char ***ID, char ***pozicia, char *
     *hodnota = newHodnota;
     *cas = newCas;
     *datum = newDatum;
-    for (int i = 0; i < *numberOfRecords; i++)
-    {
-        printf("ID. mer. modulu: %s\n", (*ID)[i]);
-        printf("poziciaícia modulu: %s\n", (*pozicia)[i]);
-        printf("Typ mer. veliciny: %s\n", (*typ)[i]);
-        printf("hodnotanota: %lf\n", (*hodnota)[i]);
-        printf("Cas merania: %s\n", (*cas)[i]);
-        printf("Datum merania: %d\n", (*datum)[i]);
-        printf("\n");
-    }
 
+    printf("Vymazalo sa : %d zaznamov !\n", vym_k);
+    // for (int i = 0; i < *numberOfRecords; i++)
+    // {
+    //     printf("ID. mer. modulu: %s\n", (*ID)[i]);
+    //     printf("poziciaícia modulu: %s\n", (*pozicia)[i]);
+    //     printf("Typ mer. veliciny: %s\n", (*typ)[i]);
+    //     printf("hodnotanota: %lf\n", (*hodnota)[i]);
+    //     printf("Cas merania: %s\n", (*cas)[i]);
+    //     printf("Datum merania: %d\n", (*datum)[i]);
+    //     printf("\n");
+    // }
+}
+void konec(FILE **Dataloger, int kol_n, int *numberOfRecords, char ***ID, char ***pozicia, char ***typ, double **hodnota, char ***cas, int **datum)
+{
+    if (kol_n == 1)
+    {
+        fclose(*Dataloger);
+        freedom(&*ID, &*pozicia, &*typ, &*cas, &*hodnota, &*datum, *numberOfRecords);
+    }
 }
 
 int main()
 {
-
     FILE *Dataloger;
-    
+
     int numberOfRecords = 0;
     int kol_v = 0, kol_n = 0;
 
@@ -529,6 +557,7 @@ int main()
 
     while (command != '0')
     {
+
         scanf("%c", &command);
 
         if (command == 'v')
@@ -550,11 +579,22 @@ int main()
         {
             sortArray(numberOfRecords, kol_n, ID, typ, datum, cas, hodnota, pozicia);
         }
-        if (command == 'h'){
+
+        if (command == 'h')
+        {
             minMax(numberOfRecords, kol_n, typ, hodnota);
         }
-        if (command == 'z'){
-            delete(kol_n, &numberOfRecords, &ID, &pozicia, &typ, &hodnota, &cas, &datum);
+
+        if (command == 'z')
+        {
+            delete (kol_n, &numberOfRecords, &ID, &pozicia, &typ, &hodnota, &cas, &datum);
         }
+
+        if (command == 'k')
+        {
+            konec(&Dataloger, kol_n, &numberOfRecords, &ID, &pozicia, &typ, &hodnota, &cas, &datum);
+            return 0;
+        }
+
     }
 }
