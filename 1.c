@@ -5,7 +5,7 @@
 
 void checkOpenFile(FILE **Dataloger, int *kol_v, int kol_n, int *numberOfRecords, char ***ID, char ***pozicia, char ***typ, double **hodnota, char ***cas, int **datum)
 {
-
+    printf("dadas\n");
     if (*kol_v == 0)
     {
         *Dataloger = fopen("dataloger.txt", "r");
@@ -42,31 +42,25 @@ void checkOpenFile(FILE **Dataloger, int *kol_v, int kol_n, int *numberOfRecords
                 printf("ID. mer. modulu: %s\n", s);
                 
                 if (fscanf(*Dataloger, "%s", s) != EOF){
-                    printf("poziciaícia modulu: %s\n", s);
+                    printf("Poziciaícia modulu: %s\n", s);
                     
                     if (fscanf(*Dataloger, "%s", s) != EOF){
-                        printf("poziciaícia modulu: %s\n", s);
+                        printf("Typ mer. veliciny: %s\n", s);
                             
-                        if (fscanf(*Dataloger, "%s", s) != EOF){
-                            printf("Typ mer. veliciny: %s\n", s);
-                            
-                            if (fscanf(*Dataloger, "%lf",&d) != EOF){
-                                printf("hodnotanota: %lf\n", d);
+                        if (fscanf(*Dataloger, "%lf",&d) != EOF){
+                            printf("hodnotanota: %lf\n", d);
 
-                                if (fscanf(*Dataloger, "%s", s) != EOF){
-                                    printf("Cas merania: %s\n", s);
+                            if (fscanf(*Dataloger, "%s", s) != EOF){
+                                printf("Cas merania: %s\n", s);
 
-                                    if (fscanf(*Dataloger, "%d", &w) != EOF){
-                                        printf("Cas merania: %d\n", w);
-                                        
-                                    }
+                                if (fscanf(*Dataloger, "%d", &w) != EOF){
+                                    printf("Datum merania: %d\n", w);
+                                    
                                 }
                             }
                         }
                     }
-                    
-                }
-            
+                }       
             }
             else if (s[0] == '\n')
             {
@@ -114,6 +108,7 @@ void createArrays(FILE **Dataloger, int *kol_n, int *numberOfRecords, char ***ID
         freedom(*ID, *pozicia, *typ, *cas, *hodnota, *datum, *numberOfRecords);
         *Dataloger = fopen("dataloger.txt", "r");
         *numberOfRecords = 0;
+        
     }
 
     double d;
@@ -462,7 +457,58 @@ void minMax(int numberOfRecords, int kol_n, char **typ, double *hodnota){
     }
 }
 
+void delete(int kol_n, int *numberOfRecords, char ***ID, char ***pozicia, char ***typ, double **hodnota, char ***cas, int **datum) {
+    
+    if (kol_n == 0) {
+        printf("Polia nie su vytvorene\n");
+        return;
+    }
+    
+    char z_ID[6];
+    scanf("%s", z_ID);
+    
+    int newNumberOfRecords = 0;
+    char **newID = (char **)malloc(*numberOfRecords * sizeof(char *));
+    char **newPozicia = (char **)malloc(*numberOfRecords * sizeof(char *));
+    char **newTyp = (char **)malloc(*numberOfRecords * sizeof(char *));
+    double *newHodnota = (double *)malloc(*numberOfRecords * sizeof(double));
+    char **newCas = (char **)malloc(*numberOfRecords * sizeof(char *));
+    int *newDatum = (int *)malloc(*numberOfRecords * sizeof(int));
+    
+    for (int i = 0; i < *numberOfRecords; i++) {
+        if (strcmp((*ID)[i], z_ID) != 0) {
+            newID[newNumberOfRecords] = strdup((*ID)[i]);
+            newPozicia[newNumberOfRecords] = strdup((*pozicia)[i]);
+            newTyp[newNumberOfRecords] = strdup((*typ)[i]);
+            newHodnota[newNumberOfRecords] = (*hodnota)[i];
+            newCas[newNumberOfRecords] = strdup((*cas)[i]);
+            newDatum[newNumberOfRecords] = (*datum)[i];
+            newNumberOfRecords++;
+        }
+    }
 
+    
+    freedom(*ID, *pozicia, *typ, *cas, *hodnota, *datum, *numberOfRecords);
+
+    *numberOfRecords = newNumberOfRecords;
+    *ID = newID;
+    *pozicia = newPozicia;
+    *typ = newTyp;
+    *hodnota = newHodnota;
+    *cas = newCas;
+    *datum = newDatum;
+    for (int i = 0; i < *numberOfRecords; i++)
+    {
+        printf("ID. mer. modulu: %s\n", (*ID)[i]);
+        printf("poziciaícia modulu: %s\n", (*pozicia)[i]);
+        printf("Typ mer. veliciny: %s\n", (*typ)[i]);
+        printf("hodnotanota: %lf\n", (*hodnota)[i]);
+        printf("Cas merania: %s\n", (*cas)[i]);
+        printf("Datum merania: %d\n", (*datum)[i]);
+        printf("\n");
+    }
+
+}
 
 int main()
 {
@@ -506,6 +552,9 @@ int main()
         }
         if (command == 'h'){
             minMax(numberOfRecords, kol_n, typ, hodnota);
+        }
+        if (command == 'z'){
+            delete(kol_n, &numberOfRecords, &ID, &pozicia, &typ, &hodnota, &cas, &datum);
         }
     }
 }
