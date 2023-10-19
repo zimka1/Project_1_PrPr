@@ -1,4 +1,3 @@
-#define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -84,7 +83,7 @@ void checkOpenFile(FILE **Dataloger, int *kol_v, int kol_n, int *numberOfRecords
     }   
 }
 
-void freeArrays(char **ID, char **pozicia, char **typ, char **cas, double *hodnota, int *datum, int numberOfRecords)
+void freedom(char **ID, char **pozicia, char **typ, char **cas, double *hodnota, int *datum, int numberOfRecords)
 {
     for (int i = 0; i < numberOfRecords; i++)
     {
@@ -112,7 +111,7 @@ void createArrays(FILE **Dataloger, int *kol_n, int *numberOfRecords, char ***ID
     }
     if (*kol_n == 1)
     {
-        freeArrays(*ID, *pozicia, *typ, *cas, *hodnota, *datum, *numberOfRecords);
+        freedom(*ID, *pozicia, *typ, *cas, *hodnota, *datum, *numberOfRecords);
         *Dataloger = fopen("dataloger.txt", "r");
         *numberOfRecords = 0;
     }
@@ -203,7 +202,7 @@ void checkMonthes(int kol_v, int kol_n, int *numberOfRecords, char ***ID, int **
     int y;
     scanf("%d", &y);
     FILE *ciachovanie = fopen("ciachovanie.txt", "r");
-
+    int allDataCorrect = 1;
     while (1)
     {
         char c_ID[6];
@@ -256,7 +255,11 @@ void checkMonthes(int kol_v, int kol_n, int *numberOfRecords, char ***ID, int **
         if (mamAleboNemam == 0)
         {
             printf("ID. mer. modulu [%s] nie je ciachovany.\n", c_ID);
+            allDataCorrect = 0;
         }
+    }
+    if (allDataCorrect == 1){
+        printf("Data su korektne.");
     }
 }
 
@@ -416,13 +419,59 @@ void sortArray(int numberOfRecords, int kol_n, char **ID, char **typ, int *datum
 }
 
 
+void minMax(int numberOfRecords, int kol_n, char **typ, double *hodnota){
+    if (kol_n == 0)
+    {
+        printf("Polia nie su vytvorene\n");
+        return;
+    }
+    double *min = (double *)malloc(numberOfRecords * sizeof(double));
+    double *max = (double *)malloc(numberOfRecords * sizeof(double));
+    char **numberOfTyps = (char **)malloc(numberOfRecords * sizeof(char *));
+    int *countOfTyps = (int *)malloc(numberOfRecords * sizeof(int));
+    int k_num = 0;
+    for (int i = 0; i < numberOfRecords; i++){
+        int act_number = -1;
+        for (int j = 0; j < k_num; j++){
+            if (strcmp(numberOfTyps[j], typ[i]) == 0){
+                act_number = j;
+                break;
+            }
+        }
+        if (act_number == -1){
+            k_num += 1;
+            numberOfTyps[k_num - 1] = typ[i];
+            act_number = k_num - 1;
+            min[act_number] = hodnota[i];
+            max[act_number] = hodnota[i];
+            countOfTyps[act_number] = 1;
+        }
+        else{
+            countOfTyps[act_number]++;
+            if (min[act_number] > hodnota[i]){
+                min[act_number] = hodnota[i];
+            }
+            if (max[act_number] < hodnota[i]){
+                max[act_number] = hodnota[i];
+            }
+        }
+            
+    }
+    for (int i = 0; i < k_num; i++){
+        printf("%s %d %.2lf %.2lf\n", numberOfTyps[i], countOfTyps[i], min[i], max[i]);
+    }
+}
+
+
 
 int main()
 {
 
     FILE *Dataloger;
+    
     int numberOfRecords = 0;
     int kol_v = 0, kol_n = 0;
+
     char **ID;
     char **pozicia;
     char **typ;
@@ -445,13 +494,18 @@ int main()
         {
             createArrays(&Dataloger, &kol_n, &numberOfRecords, &ID, &pozicia, &typ, &hodnota, &cas, &datum);
         }
+
         if (command == 'c')
         {
             checkMonthes(kol_v, kol_n, &numberOfRecords, &ID, &datum);
         }
+
         if (command == 's')
         {
             sortArray(numberOfRecords, kol_n, ID, typ, datum, cas, hodnota, pozicia);
+        }
+        if (command == 'h'){
+            minMax(numberOfRecords, kol_n, typ, hodnota);
         }
     }
 }
