@@ -219,12 +219,14 @@ void checkMonthes(int kol_v, int kol_n, int *numberOfRecords, char ***ID, int **
         char c_ID[6];
         int c_datum;
         int mamAleboNemam = 0;
-
+        int neskordatum = 0;
+        int ans = 0;
         // Čítanie ID a dátumu zo súboru "ciachovanie.txt"
         if (fscanf(ciachovanie, "%s", c_ID) != EOF)
         {
+            ans = 0;
             fscanf(ciachovanie, "%d", &c_datum);
-
+            
             // Prechádzanie záznamov v poli ID
             for (int i = 0; i < *numberOfRecords; i++)
             {
@@ -238,16 +240,23 @@ void checkMonthes(int kol_v, int kol_n, int *numberOfRecords, char ***ID, int **
                     mesiac = (*datum)[i] % 10000 / 100;
                     rok = (*datum)[i] / 10000;
 
-                    int months1 = c_rok * 12 + c_mesiac;
-                    int months2 = rok * 12 + mesiac;
-                    int difference = abs(months1 - months2);
+                    int c_monthes = c_rok * 12 + c_mesiac;
+                    int monthes = rok * 12 + mesiac;
+                    int difference = abs(c_monthes - monthes);
 
                     // Porovnanie počtu mesiacov
-                    if (difference > y)
+                    if (neskordatum <= monthes)
                     {
-                        printf("ID mer. modulu [%s] má %d mesiacov od ciachovania.\n", (*ID)[i], difference);
+                        ans = difference;
                     }
                 }
+            }
+
+            if (ans - y >= 0){
+                printf("ID mer. modulu [%s] má %d mesiacov po ciachovani.\n", c_ID, ans-y);
+            }
+            else{
+
             }
         }
         else if (c_ID[0] == '\n')
