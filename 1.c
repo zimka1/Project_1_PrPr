@@ -78,7 +78,7 @@ void checkOpenFile(FILE **Dataloger, int *kol_v, int kol_n, int *numberOfRecords
             }
             printf("\n");
         }
-        *Dataloger = fopen("dataloger.txt", "r"); // Znovu otvorí súbor "dataloger.txt" na čítanie pre ďalšie čítanie informácií
+        rewind(*Dataloger); 
     }
 }
 
@@ -115,7 +115,7 @@ void createArrays(FILE **Dataloger, int *kol_n, int *numberOfRecords, char ***ID
     if (*kol_n == 1)
     {
         freedom(&*ID, &*pozicia, &*typ, &*cas, &*hodnota, &*datum, *numberOfRecords);
-        *Dataloger = fopen("dataloger.txt", "r");
+        rewind(*Dataloger);
         *numberOfRecords = 0;
     }
 
@@ -232,12 +232,10 @@ void checkMonthes(int kol_v, int kol_n, int *numberOfRecords, char ***ID, int **
                 {
                     mamAleboNemam = 1;
 
-                    int c_mesiac = 0, c_den = 0, c_rok = 0, mesiac = 0, den = 0, rok = 0;
+                    int c_mesiac = 0, c_rok = 0, mesiac = 0, rok = 0;
                     c_mesiac = c_datum % 10000 / 100;
-                    c_den = c_datum % 100;
                     c_rok = c_datum / 10000;
                     mesiac = (*datum)[i] % 10000 / 100;
-                    den = (*datum)[i] % 100;
                     rok = (*datum)[i] / 10000;
 
                     int months1 = c_rok * 12 + c_mesiac;
