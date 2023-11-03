@@ -78,11 +78,11 @@ void checkOpenFile(FILE **Dataloger, int *kol_v, int kol_n, int *numberOfRecords
             }
             printf("\n");
         }
-        rewind(*Dataloger); 
+        rewind(*Dataloger);
     }
 }
 
-//Táto funkcia sa používa na čistenie pamäte a zabránenie úniku pamäte, keď už nie sú potrebné žiadne údaje.
+// Táto funkcia sa používa na čistenie pamäte a zabránenie úniku pamäte, keď už nie sú potrebné žiadne údaje.
 
 void freedom(char ***ID, char ***pozicia, char ***typ, char ***cas, double **hodnota, int **datum, int numberOfRecords)
 {
@@ -110,7 +110,7 @@ void createArrays(FILE **Dataloger, int *kol_n, int *numberOfRecords, char ***ID
         printf("Neotvoreny subor\n");
         return;
     }
-    
+
     // Ak sme už raz prečítali dáta, uvoľníme pamäť
     if (*kol_n == 1)
     {
@@ -213,27 +213,30 @@ void checkMonthes(int kol_v, int kol_n, int *numberOfRecords, char ***ID, int **
     // Otvorenie súboru "ciachovanie.txt" pre čítanie
     FILE *ciachovanie = fopen("ciachovanie.txt", "r");
     int allDataCorrect = 1;
-
+    int *mamAleboNemam = (int *)malloc((*numberOfRecords) * sizeof(int));
+    for (int i = 0; i < *numberOfRecords; i++)
+    {
+        mamAleboNemam[i] = 0;
+    }
     while (1)
     {
         char c_ID[6];
         int c_datum;
-        int mamAleboNemam = 0;
         int neskordatum = 0;
         int ans = 0;
+
         // Čítanie ID a dátumu zo súboru "ciachovanie.txt"
         if (fscanf(ciachovanie, "%s", c_ID) != EOF)
         {
             ans = 0;
             fscanf(ciachovanie, "%d", &c_datum);
-            
+
             // Prechádzanie záznamov v poli ID
             for (int i = 0; i < *numberOfRecords; i++)
             {
                 if (strcmp(c_ID, (*ID)[i]) == 0)
                 {
-                    mamAleboNemam = 1;
-
+                    mamAleboNemam[i] = 1;
                     int c_mesiac = 0, c_rok = 0, mesiac = 0, rok = 0;
                     c_mesiac = c_datum % 10000 / 100;
                     c_rok = c_datum / 10000;
@@ -247,16 +250,19 @@ void checkMonthes(int kol_v, int kol_n, int *numberOfRecords, char ***ID, int **
                     // Porovnanie počtu mesiacov
                     if (neskordatum <= monthes)
                     {
+                        neskordatum = monthes;
                         ans = difference;
                     }
                 }
             }
 
-            if (ans - y >= 0){
-                printf("ID mer. modulu [%s] má %d mesiacov po ciachovani.\n", c_ID, ans-y);
+            if (ans - y >= 0)
+            {
+                printf("ID mer. modulu [%s] má %d mesiacov po ciachovani.\n", c_ID, ans - y);
             }
-            else{
-
+            else
+            {
+                allDataCorrect = 0;
             }
         }
         else if (c_ID[0] == '\n')
@@ -267,18 +273,34 @@ void checkMonthes(int kol_v, int kol_n, int *numberOfRecords, char ***ID, int **
         {
             break;
         }
+    }
 
-        if (mamAleboNemam == 0)
+    for (int i = 0; i < *numberOfRecords; i++)
+    {
+        int boloAleboNebolo = 0;
+        if (mamAleboNemam[i] == 0)
         {
-            printf("ID mer. modulu [%s] nie je ciachovaný.\n", c_ID);
-            allDataCorrect = 0;
+            for (int j = 0; j < i; j++)
+            {
+                if (strcmp((*ID)[i], (*ID)[j]) == 0)
+                {
+                    boloAleboNebolo = 1;
+                }
+            }
+            if (boloAleboNebolo == 0)
+            {
+                printf("ID mer. modulu [%s] nie je ciachovany.\n", (*ID)[i]);
+                allDataCorrect = 0;
+            }
         }
     }
 
     if (allDataCorrect == 1)
     {
-        printf("Data sú korektné.");
+        printf("Data sú korektné.\n");
     }
+    free(mamAleboNemam);
+    fclose(ciachovanie);
 }
 
 // Funkcia swap slúži na výmenu hodnôt dvoch celočíselných premenných a a b.
@@ -304,6 +326,7 @@ int *sortNajdeneArray(int *najdene, char **najdene_datumCas, int k, int *ans_k)
             if (najdene_datumCas[ans[j]] > najdene_datumCas[najdene[i]])
             {
                 zap = j;
+                break;
             }
         }
 
@@ -334,7 +357,6 @@ int *sortNajdeneArray(int *najdene, char **najdene_datumCas, int k, int *ans_k)
 
     return ans;
 }
-
 
 void sortArray(int numberOfRecords, int kol_n, char **ID, char **typ, int *datum, char **cas, double *hodnota, char **pozicia)
 {
@@ -459,7 +481,6 @@ void sortArray(int numberOfRecords, int kol_n, char **ID, char **typ, int *datum
     fclose(vystup_s);
 }
 
-
 void minMax(int numberOfRecords, int kol_n, char **typ, double *hodnota)
 {
     // Kontrola, či boli vytvorené potrebné polia
@@ -520,9 +541,17 @@ void minMax(int numberOfRecords, int kol_n, char **typ, double *hodnota)
     {
         printf("%s %d %.2lf %.2lf\n", numberOfTyps[i], countOfTyps[i], min[i], max[i]);
     }
-    
-}
 
+    for (int i = 0; i < numberOfRecords; i++)
+    {
+        free(numberOfTyps[i]);
+    }
+
+    free(numberOfTyps);
+    free(countOfTyps);
+    free(min);
+    free(max);
+}
 
 void delete(int kol_n, int *numberOfRecords, char ***ID, char ***pozicia, char ***typ, double **hodnota, char ***cas, int **datum)
 {
@@ -562,7 +591,8 @@ void delete(int kol_n, int *numberOfRecords, char ***ID, char ***pozicia, char *
             newDatum[newNumberOfRecords] = (*datum)[i];
             newNumberOfRecords++;
         }
-        else {
+        else
+        {
             vym_k++;
         }
     }
@@ -593,7 +623,6 @@ void konec(FILE **Dataloger, int kol_n, int *numberOfRecords, char ***ID, char *
     }
 }
 
-
 int main()
 {
     FILE *Dataloger;
@@ -610,7 +639,7 @@ int main()
 
     char command;
 
-    while (command != '0')
+    while (1)
     {
 
         scanf("%c", &command);
@@ -650,6 +679,5 @@ int main()
             konec(&Dataloger, kol_n, &numberOfRecords, &ID, &pozicia, &typ, &hodnota, &cas, &datum);
             return 0;
         }
-
     }
 }
