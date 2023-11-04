@@ -191,7 +191,7 @@ void createArrays(FILE **Dataloger, int *kol_n, int *numberOfRecords, char ***ID
     *kol_n = 1;
 }
 
-void checkMonthes(int kol_v, int kol_n, int *numberOfRecords, char ***ID, int **datum)
+void checkMonthes(int kol_v, int kol_n, int numberOfRecords, char **ID, int *datum)
 {
     // Kontrola, či sú polia vytvorené
     if (kol_n == 0)
@@ -213,8 +213,8 @@ void checkMonthes(int kol_v, int kol_n, int *numberOfRecords, char ***ID, int **
     // Otvorenie súboru "ciachovanie.txt" pre čítanie
     FILE *ciachovanie = fopen("ciachovanie.txt", "r");
     int allDataCorrect = 1;
-    int *mamAleboNemam = (int *)malloc((*numberOfRecords) * sizeof(int));
-    for (int i = 0; i < *numberOfRecords; i++)
+    int *mamAleboNemam = (int *)malloc(numberOfRecords * sizeof(int));
+    for (int i = 0; i < numberOfRecords; i++)
     {
         mamAleboNemam[i] = 0;
     }
@@ -232,16 +232,16 @@ void checkMonthes(int kol_v, int kol_n, int *numberOfRecords, char ***ID, int **
             fscanf(ciachovanie, "%d", &c_datum);
 
             // Prechádzanie záznamov v poli ID
-            for (int i = 0; i < *numberOfRecords; i++)
+            for (int i = 0; i < numberOfRecords; i++)
             {
-                if (strcmp(c_ID, (*ID)[i]) == 0)
+                if (strcmp(c_ID, ID[i]) == 0)
                 {
                     mamAleboNemam[i] = 1;
                     int c_mesiac = 0, c_rok = 0, mesiac = 0, rok = 0;
                     c_mesiac = c_datum % 10000 / 100;
                     c_rok = c_datum / 10000;
-                    mesiac = (*datum)[i] % 10000 / 100;
-                    rok = (*datum)[i] / 10000;
+                    mesiac = datum[i] % 10000 / 100;
+                    rok = datum[i] / 10000;
 
                     int c_monthes = c_rok * 12 + c_mesiac;
                     int monthes = rok * 12 + mesiac;
@@ -275,21 +275,21 @@ void checkMonthes(int kol_v, int kol_n, int *numberOfRecords, char ***ID, int **
         }
     }
 
-    for (int i = 0; i < *numberOfRecords; i++)
+    for (int i = 0; i < numberOfRecords; i++)
     {
         int boloAleboNebolo = 0;
         if (mamAleboNemam[i] == 0)
         {
             for (int j = 0; j < i; j++)
             {
-                if (strcmp((*ID)[i], (*ID)[j]) == 0)
+                if (strcmp(ID[i], ID[j]) == 0)
                 {
                     boloAleboNebolo = 1;
                 }
             }
             if (boloAleboNebolo == 0)
             {
-                printf("ID mer. modulu [%s] nie je ciachovany.\n", (*ID)[i]);
+                printf("ID mer. modulu [%s] nie je ciachovany.\n", ID[i]);
                 allDataCorrect = 0;
             }
         }
@@ -656,7 +656,7 @@ int main()
 
         if (command == 'c')
         {
-            checkMonthes(kol_v, kol_n, &numberOfRecords, &ID, &datum);
+            checkMonthes(kol_v, kol_n, numberOfRecords, ID, datum);
         }
 
         if (command == 's')
