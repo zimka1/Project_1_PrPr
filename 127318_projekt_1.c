@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -23,9 +24,9 @@ void checkOpenFile(FILE **Dataloger, int *kol_v, int kol_n, int *numberOfRecords
         for (int i = 0; i < *numberOfRecords; i++)
         {
             printf("ID. mer. modulu: %s\n", (*ID)[i]);
-            printf("Poziciaícia modulu: %s\n", (*pozicia)[i]);
+            printf("Pozicia modulu: %s\n", (*pozicia)[i]);
             printf("Typ mer. veliciny: %s\n", (*typ)[i]);
-            printf("hodnotanota: %lf\n", (*hodnota)[i]);
+            printf("Hodnota: %lf\n", (*hodnota)[i]);
             printf("Cas merania: %s\n", (*cas)[i]);
             printf("Datum merania: %d\n", (*datum)[i]);
             printf("\n");
@@ -45,7 +46,7 @@ void checkOpenFile(FILE **Dataloger, int *kol_v, int kol_n, int *numberOfRecords
 
                 if (fscanf(*Dataloger, "%s", s) != EOF)
                 {
-                    printf("poziciaícia modulu: %s\n", s);
+                    printf("Pozicia modulu: %s\n", s);
 
                     if (fscanf(*Dataloger, "%s", s) != EOF)
                     {
@@ -53,7 +54,7 @@ void checkOpenFile(FILE **Dataloger, int *kol_v, int kol_n, int *numberOfRecords
 
                         if (fscanf(*Dataloger, "%lf", &d) != EOF)
                         {
-                            printf("hodnotanota: %lf\n", d);
+                            printf("Hodnota: %lf\n", d);
 
                             if (fscanf(*Dataloger, "%s", s) != EOF)
                             {
@@ -541,16 +542,6 @@ void minMax(int numberOfRecords, int kol_n, char **typ, double *hodnota)
     {
         printf("%s %d %.2lf %.2lf\n", numberOfTyps[i], countOfTyps[i], min[i], max[i]);
     }
-
-    for (int i = 0; i < numberOfRecords; i++)
-    {
-        free(numberOfTyps[i]);
-    }
-
-    free(numberOfTyps);
-    free(countOfTyps);
-    free(min);
-    free(max);
 }
 
 void delete(int kol_n, int *numberOfRecords, char ***ID, char ***pozicia, char ***typ, double **hodnota, char ***cas, int **datum)
@@ -612,17 +603,6 @@ void delete(int kol_n, int *numberOfRecords, char ***ID, char ***pozicia, char *
     printf("Vymazalo sa : %d záznamov !\n", vym_k);
 }
 
-void konec(FILE **Dataloger, int kol_n, int *numberOfRecords, char ***ID, char ***pozicia, char ***typ, double **hodnota, char ***cas, int **datum)
-{
-    // Kontrola, či bol súbor otvorený a polia boli vytvorené
-    if (kol_n == 1)
-    {
-        fclose(*Dataloger);
-        // Uvoľníme pamäť
-        freedom(&*ID, &*pozicia, &*typ, &*cas, &*hodnota, &*datum, *numberOfRecords);
-    }
-}
-
 int main()
 {
     FILE *Dataloger;
@@ -676,7 +656,13 @@ int main()
 
         if (command == 'k')
         {
-            konec(&Dataloger, kol_n, &numberOfRecords, &ID, &pozicia, &typ, &hodnota, &cas, &datum);
+            // Kontrola, či bol súbor otvorený a polia boli vytvorené
+            if (kol_n == 1)
+            {
+                fclose(Dataloger);
+                // Uvoľníme pamäť
+                freedom(&ID, &pozicia, &typ, &cas, &hodnota, &datum, numberOfRecords);
+            }
             return 0;
         }
     }
